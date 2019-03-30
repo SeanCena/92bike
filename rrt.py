@@ -67,9 +67,10 @@ def isThruObstacle(line, obstacles):
 
 def nearest(G, vex):
     Nvex = None
+    Nidx = None
     minDist = float("inf")
 
-    for v in G.vertices:
+    for idx, v in enumerate(G.vertices):
         line = Line(v, vex)
         if isThruObstacle(line, obstacles):
             continue
@@ -77,21 +78,53 @@ def nearest(G, vex):
         dist = distance(v, vex)
         if dist < minDist:
             minDist = dist
+            Nidx = idx
             Nvex = v
 
-    return Nvex, minDist
+    return Nvex, Nidx
 
 
 
 class Graph:
 
-    def __init__(self):
-        vertices = []
-        edges = []
+    def __init__(self, startpos, endpos):
+        self.startpos = startpos
+        self.endpos = endpos
+        self.vertices = [startpos]
+        self.edges = []
+
+        self.sx = endpos[0] - startpos[0]
+        self.sy = endpos[1] - startpos[1]
 
     def randomPosition(self):
-        pass
+        rx = random()
+        ry = random()
+
+        posx = self.startpos[0] - (self.sx / 2.) + rx * self.sx * 2
+        posy = self.startpos[1] - (self.sy / 2.) + ry * self.sy * 2
+        return posx, posy
+
+# startpos = (0., 0.)
+# endpos = (3., 2.)
+# G = Graph(startpos, endpos)
+# G.randomPosition()
 
 
 def RRT():
-    pass
+    n_iter = 10
+    it = 0
+    radius = 0.1
+
+    G = Graph()
+
+    for _ in n_iter:
+        newvex = G.randomPosition()
+        if isInObstacle(newvex):
+            continue
+
+        Nvex, Nidx = nearest(G, vex)
+        if Nvex is None:
+            continue
+
+        G.edges.append((Nidx, len(G.vertices)))
+        G.vertices.append(newvex)
