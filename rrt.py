@@ -1,7 +1,9 @@
 
-obstacle = []
-startpts = (0., 0.)
-endpts = (1., 1.)
+import numpy as np
+from random import random
+import matplotlib.pyplot as plt
+from matplotlib import collections  as mc
+
 
 class Line():
     def __init__(self, p0, p1):
@@ -110,21 +112,58 @@ class Graph:
 # G.randomPosition()
 
 
-def RRT():
-    n_iter = 10
-    it = 0
-    radius = 0.1
+def RRT(startpos, endpos):
+    G = Graph(startpos, endpos)
 
-    G = Graph()
-
-    for _ in n_iter:
+    for _ in range(n_iter):
         newvex = G.randomPosition()
         if isInObstacle(newvex):
             continue
 
-        Nvex, Nidx = nearest(G, vex)
+        Nvex, Nidx = nearest(G, newvex)
         if Nvex is None:
             continue
 
         G.edges.append((Nidx, len(G.vertices)))
         G.vertices.append(newvex)
+
+        if distance(newvex, G.endpos) < radius:
+            G.edges.append((len(G.vertices)-1, len(G.vertices)))
+            G.vertices.append(G.endpos)
+            print('success')
+            break
+    return G
+
+
+startpos = (0., 0.)
+endpos = (5., 5.)
+obstacles = [(1., 1.), (2., 2.)]
+n_iter = 100
+radius = 0.5
+
+G = RRT(startpos, endpos)
+
+
+def plot(G):
+    px = [x for x, y in G.vertices]
+    py = [y for x, y in G.vertices]
+
+#     plt.plot(px, py, 'ro')
+#     plt.plot(startpos[0], startpos[1], 'go')
+#     plt.plot(endpos[0], endpos[1], 'bo')
+
+    fig, ax = plt.subplots()
+
+    ax.scatter(px, py, c='red')
+    ax.scatter(startpos[0], startpos[1], c='black')
+    ax.scatter(endpos[0], endpos[1], c='black')
+
+    lines = [(G.vertices[edge[0]], G.vertices[edge[1]]) for edge in G.edges]
+    lc = mc.LineCollection(lines, linewidths=2)
+    ax.add_collection(lc)
+    ax.autoscale()
+    ax.margins(0.1)
+    plt.show()
+
+
+plot(G)
