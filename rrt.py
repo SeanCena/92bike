@@ -7,7 +7,8 @@ class Line():
     def __init__(self, p0, p1):
         self.p = np.array(p0)
         self.dirn = np.array(p1) - np.array(p0)
-        self.dirn /= np.linalg.norm(self.dirn)
+        self.dist = np.linalg.norm(self.dirn)
+        self.dirn /= self.dist # normalize
 
     def path(self, t):
         return self.p + t * self.dirn
@@ -19,10 +20,16 @@ def Intersection(line, center, radius):
     c = np.dot(line.p - center, line.p - center) - radius * radius
 
     discriminant = b * b - 4 * a * c
-    if discriminant >= 0:
-        return True
-    else:
+    if discriminant < 0:
         return False
+
+    t1 = (-b + np.sqrt(discriminant)) / (2 * a);
+    t2 = (-b - np.sqrt(discriminant)) / (2 * a);
+
+    if (t1 < 0 and t2 < 0) or (t1 > line.dist and t2 > line.dist):
+        return False
+
+    return True
 
 
 # p0 = (0., 0.)
@@ -34,6 +41,46 @@ def Intersection(line, center, radius):
 # line = Line(p0, p1)
 # print(Intersection(line, center, radius1)) # True
 # print(Intersection(line, center, radius2)) # False
+# print(Intersection(line, (0.5, 0.5), radius1)) # True
+# print(Intersection(line, (2., 2.), radius1)) # False
+# print(Intersection(line, (-1., -1.), radius1)) # False
+
+
+
+def distance(x, y):
+    return np.linalg.norm(np.array(x) - np.array(y))
+
+
+def isInObstacle(vex):
+    for obs in obstacles:
+        if distance(obs, vex) < radius:
+            return True
+    return False
+
+
+def isThruObstacle(line, obstacles):
+    for obs in obstacles:
+        if Intersection(line, obs, radius):
+            return True
+    return False
+
+
+def nearest(G, vex):
+    Nvex = None
+    minDist = float("inf")
+
+    for v in G.vertices:
+        line = Line(v, vex)
+        if isThruObstacle(line, obstacles):
+            continue
+
+        dist = distance(v, vex)
+        if dist < minDist:
+            minDist = dist
+            Nvex = v
+
+    return Nvex, minDist
+
 
 
 class Graph:
