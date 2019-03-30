@@ -16,9 +16,40 @@
         margin: 0;
         padding: 0;
       }
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+      #floating-panel {
+        background-color: #fff;
+        border: 1px solid #999;
+        left: 25%;
+        padding: 5px;
+        position: absolute;
+        top: 10px;
+        z-index: 5;
+      }
+      input[type="range"] {
+        width:400px;
+      }
     </style>
   </head>
   <body>
+    <div id="floating-panel">
+        <label for="hour">Hour: </label>
+        <input type="range" name="hour" value="0"
+                            min="0" max="23" step="1" onchange="showHour(this.value)"/>
+        <span id="hourSelected"></span>
+    </div>
     <div id="map"></div>
     <script src="getpoints.js"></script>
     <script>
@@ -30,13 +61,12 @@
         });
 
         heatmap = new google.maps.visualization.HeatmapLayer({
-          data: getPoints(),
+          data: getPoints("01"),
           map: map
         });
 
         heatmap.setMap(map);
-        heatmap.set('radius', 20);
-
+        heatmap.set('radius', 100);
 
         var gradient = [
           'rgba(0, 255, 255, 0)',
@@ -56,7 +86,19 @@
         ]
         heatmap.set('gradient', gradient);
 
+        showHour(0);
       }
+
+      function showHour(hour) {
+        document.getElementById('hourSelected').innerHTML = hour;
+
+        if (hour < 10) {
+          heatmap.setData(getPoints("0" + hour));
+        } else {
+          heatmap.setData(getPoints(hour));
+        }
+      }
+
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVjs2t0iHcQVwLikXlp5iRGeN458izGME&callback=initMap&libraries=visualization"
     async defer></script>
