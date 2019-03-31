@@ -87,6 +87,11 @@ def nearest(G, vex):
     return Nvex, Nidx
 
 
+def newVertex(randvex, nearvex):
+    dirn = np.array(randvex) - np.array(nearvex)
+    dirn = (dirn / np.linalg.norm(dirn)) * stepSize
+    return randvex[0]+dirn[0], randvex[1]+dirn[1]
+
 
 class Graph:
 
@@ -109,6 +114,7 @@ class Graph:
         posy = self.startpos[1] - (self.sy / 2.) + ry * self.sy * 2
         return posx, posy
 
+
 # startpos = (0., 0.)
 # endpos = (3., 2.)
 # G = Graph(startpos, endpos)
@@ -119,15 +125,17 @@ def RRT(startpos, endpos):
     G = Graph(startpos, endpos)
 
     for _ in range(n_iter):
-        newvex = G.randomPosition()
-        if isInObstacle(newvex):
+        randvex = G.randomPosition()
+        if isInObstacle(randvex):
             continue
 
-        Nvex, Nidx = nearest(G, newvex)
-        if Nvex is None:
+        nearvex, nearidx = nearest(G, randvex)
+        if nearvex is None:
             continue
 
-        G.edges.append((Nidx, len(G.vertices)))
+        newvex = newVertex(randvex, nearvex)
+
+        G.edges.append((nearidx, len(G.vertices)))
         G.vertices.append(newvex)
 
         if distance(newvex, G.endpos) < radius:
@@ -228,6 +236,7 @@ if __name__ == '__main__':
     obstacles = [(1., 1.), (2., 2.)]
     n_iter = 200
     radius = 0.5
+    stepSize = 0.5
 
     G = RRT(startpos, endpos)
 
