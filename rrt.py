@@ -236,10 +236,9 @@ if __name__ == '__main__':
     obstacles = [(1., 1.), (2., 2.)]
     n_iter = 200
     radius = 0.5
-    stepSize = 0.5
+    stepSize = 0.7
 
     G = RRT(startpos, endpos)
-    plot(G)
 
     if G.success:
         path = dijkstra(G)
