@@ -69,6 +69,7 @@
         });
 
         document.getElementById('submit').addEventListener('click', function() {
+          console.log(1231231312312);
           var request = new XMLHttpRequest();
           request.open('POST', 'http://localhost:5000/');
           request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -154,9 +155,11 @@
         document.getElementById('hourSelected').innerHTML += (hour>=12&&hour<24)?"PM":"AM";
 
         if (hour < 10) {
-          heatmap.setData(getPoints("0" + hour - 1));
+          curHour = "0" + hour;
+          heatmap.setData(getPoints(curHour));
         } else {
-          heatmap.setData(getPoints(hour - 1));
+          curHour = hour;
+          heatmap.setData(getPoints(curHour));
         }
       }
 
