@@ -49,9 +49,12 @@
         <input type="range" name="hour" value="0"
                             min="0" max="23" step="1" onchange="showHour(this.value)"/>
         <span id="hourSelected"></span>
+        <input type="submit" id="submit">
+        <input type="submit" id="restart" value="Restart">
     </div>
     <div id="map"></div>
     <script src="getpoints.js"></script>
+    <script src="classes.js"></script>
     <script>
       var map, heatmap;
       function initMap() {
@@ -87,6 +90,28 @@
         heatmap.set('gradient', gradient);
 
         showHour(0);
+
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+
+        Pathfinder_obj = new Pathfinder();
+        directionsDisplay.setMap(map);
+
+        google.maps.event.addListener(map, 'click', function(event) {
+          Pathfinder_obj.add_waypoint(event);
+          console.log("Latitude: " + event.latLng.lat() + " " + ", longitude: " + event.latLng.lng());
+        });
+
+        document.getElementById('submit').addEventListener('click', function() {
+          Pathfinder_obj.print_waypoints();
+          // calculateAndDisplayRoute(directionsService, directionsDisplay);
+          Pathfinder_obj.print_path(directionsService, directionsDisplay);
+        });
+
+        document.getElementById('restart').addEventListener('click', function() {
+          Pathfinder_obj.delete_all_waypoints();
+          directionsDisplay.setDirections({routes: []});
+        });
       }
 
       function showHour(hour) {
