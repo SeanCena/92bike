@@ -107,9 +107,50 @@
           request.open('POST', 'http://localhost:5000/');
           request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
+          function getWindow(startpos, endpos) {
+            width = endpos[0] - startpos[0];
+            height = endpos[1] - startpos[1];
+            winx = startpos[0] - (width / 2.);
+            winy = startpos[1] - (height / 2.);
+            return {winx, winy, width, height};
+          }
+
+          function isInWindow(pos, winx, winy, width, height) {
+            xl = Math.min(winx, winx+width);
+            xr = Math.max(winx, winx+width);
+            yl = Math.min(winy, winy+height);
+            yr = Math.max(winy, winy+height);
+            if (xl < pos[0] && pos[0] < xr && yl < pos[1] && pos[1] < yr) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+
+          let points = getPoints(curHour);
+          let positions = [];
+          for (let i = 0; i < points.length; i++) {
+            let loc = points[i].location;
+            positions.push([loc.lat(), loc.lng()]);
+          }
+
+          console.log(1, positions);
+
+          let startpos = Pathfinder_obj.waypoints[0];
+          let endpos = Pathfinder_obj.waypoints[Pathfinder_obj.waypoints.length-1];
+
+          let result = getWindow([startpos.lat(), startpos.lng()], [endpos.lat(), endpos.lng()]);
+          console.log(result);
+          positions = positions.filter(function (pos) {
+            return isInWindow(pos, result.winx, result.winy, result.width, result.height)
+          });
+
+          console.log(positions);
+
           request.send(JSON.stringify({
-            startpos: Pathfinder_obj.waypoints[0],
-            endpos: Pathfinder_obj.waypoints[Pathfinder_obj.waypoints.length-1]
+            startpos,
+            endpos,
+            positions
           }));
 
           request.onreadystatechange = function () {
