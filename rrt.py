@@ -293,6 +293,12 @@ def plot(G, path=None):
     plt.show()
 
 
+def pathSearch(startpos, endpos, obstacles, n_iter, radius, stepSize):
+    G = RRT_star(startpos, endpos)
+    if G.success:
+        path = dijkstra(G)
+        return path
+
 
 if __name__ == '__main__':
     startpos = (0., 0.)
