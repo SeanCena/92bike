@@ -99,9 +99,17 @@ def newVertex(randvex, nearvex, stepSize):
 def window(startpos, endpos):
     width = endpos[0] - startpos[0]
     height = endpos[1] - startpos[1]
-    x = startpos[0] - (width / 2.)
-    y = startpos[1] - (height / 2.)
-    return x, y, width, height
+    winx = startpos[0] - (width / 2.)
+    winy = startpos[1] - (height / 2.)
+    return winx, winy, width, height
+
+
+def isInWindow(pos, winx, winy, width, height):
+    if winx < pos[0] < winx+width and \
+        winy < pos[1] < winy+height:
+        return True
+    else:
+        return False
 
 
 class Graph:
