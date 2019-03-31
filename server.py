@@ -14,7 +14,7 @@ def hello():
     print startpos, endpos, positions
 
     #obstacles = [(p[0], p[1]) for p in positions]
-    obstacles []
+    obstacles = []
     n_iter = 200
     radius = 0.01
     stepSize = 0.01
