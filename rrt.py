@@ -96,6 +96,14 @@ def newVertex(randvex, nearvex, stepSize):
     return newvex
 
 
+def window(startpos, endpos):
+    width = endpos[0] - startpos[0]
+    height = endpos[1] - startpos[1]
+    x = startpos[0] - (width / 2.)
+    y = startpos[1] - (height / 2.)
+    return x, y, width, height
+
+
 class Graph:
 
     def __init__(self, startpos, endpos):
