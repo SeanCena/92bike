@@ -113,16 +113,14 @@ class Graph:
         self.sx = endpos[0] - startpos[0]
         self.sy = endpos[1] - startpos[1]
 
-    def add_vex(self, pos, dist=0.):
+    def add_vex(self, pos):
         try:
             idx = self.vex2idx[pos]
-            self.distances[idx] = dist
         except:
             idx = len(self.vertices)
             self.vertices.append(pos)
             self.vex2idx[pos] = idx
             self.neighbors[idx] = []
-            self.distances[idx] = dist
         return idx
 
     def add_edge(self, idx1, idx2, cost):
@@ -174,6 +172,58 @@ def RRT(startpos, endpos):
     return G
 
 
+def RRT_star(startpos, endpos):
+    G = Graph(startpos, endpos)
+
+    for _ in range(n_iter):
+        randvex = G.randomPosition()
+        if isInObstacle(randvex):
+            continue
+
+        nearvex, nearidx = nearest(G, randvex)
+        if nearvex is None:
+            continue
+
+        newvex = newVertex(randvex, nearvex)
+
+        newidx = G.add_vex(newvex)
+        dist = distance(newvex, nearvex)
+        G.add_edge(newidx, nearidx, dist)
+        G.distances[newidx] = G.distances[nearidx] + dist
+
+        # update nearby vertices distance (if shorter)
+        for vex in G.vertices:
+            if vex == newvex:
+                continue
+
+            dist = distance(vex, newvex)
+            if dist > radius:
+                continue
+
+            line = Line(vex, newvex)
+            if isThruObstacle(line, obstacles):
+                continue
+
+            idx = G.vex2idx[vex]
+            if G.distances[newidx] + dist < G.distances[idx]:
+                G.add_edge(idx, newidx, dist)
+                G.distances[idx] = G.distances[newidx] + dist
+
+        dist = distance(newvex, G.endpos)
+        if dist < 2 * radius:
+            endidx = G.add_vex(G.endpos)
+            G.add_edge(newidx, endidx, dist)
+            try:
+                G.distances[endidx] = min(G.distances[endidx], G.distances[newidx]+dist)
+            except:
+                G.distances[endidx] = G.distances[newidx]+dist
+
+            G.success = True
+            print('success')
+            # break
+    return G
+
+
 # startpos = (0., 0.)
 # endpos = (5., 5.)
 # obstacles = [(1., 1.), (2., 2.)]
@@ -185,19 +235,6 @@ def RRT(startpos, endpos):
 def dijkstra(G):
     srcIdx = G.vex2idx[G.startpos]
     dstIdx = G.vex2idx[G.endpos]
-
-    # Preprocess neighbor & distance
-    # G.neighbors.clear()
-    #
-    # for e1, e2 in G.edges:
-    #     dist = distance(G.vertices[e1], G.vertices[e2])
-    #     v = G.neighbors.get(e1, [])
-    #     v.append((e2, dist))
-    #     G.neighbors[e1] = v
-    #
-    #     v = G.neighbors.get(e2, [])
-    #     v.append((e1, dist))
-    #     G.neighbors[e2] = v
 
     # build dijkstra
     nodes = list(G.neighbors.keys())
@@ -265,7 +302,8 @@ if __name__ == '__main__':
     radius = 0.5
     stepSize = 0.7
 
-    G = RRT(startpos, endpos)
+    G = RRT_star(startpos, endpos)
+    # G = RRT(startpos, endpos)
 
     if G.success:
         path = dijkstra(G)
