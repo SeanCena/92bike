@@ -61,12 +61,12 @@
         });
 
         heatmap = new google.maps.visualization.HeatmapLayer({
-          data: getPoints("01"),
+          data: getPoints("00"),
           map: map
         });
 
         heatmap.setMap(map);
-        heatmap.set('radius', 100);
+        heatmap.set('radius', 10);
 
         var gradient = [
           'rgba(0, 255, 255, 0)',

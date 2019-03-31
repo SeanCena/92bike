@@ -27,7 +27,7 @@ def plotCluster(kmeans, points):
         colors.append((random(), random(), random()))
 
     fig = plt.figure(figsize=(12,12))
-    
+
     plt.scatter(ctrx, ctry, c='black', marker='x', s=30)
     plt.scatter(x, y, c=label, cmap=matplotlib.colors.ListedColormap(colors),s=5)
 
