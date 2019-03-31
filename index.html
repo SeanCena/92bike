@@ -103,9 +103,32 @@
         });
 
         document.getElementById('submit').addEventListener('click', function() {
-          Pathfinder_obj.print_waypoints();
-          // calculateAndDisplayRoute(directionsService, directionsDisplay);
-          Pathfinder_obj.print_path(directionsService, directionsDisplay);
+          var request = new XMLHttpRequest();
+          request.open('POST', 'http://localhost:5000/');
+          request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+          request.send(JSON.stringify({
+            startpos: Pathfinder_obj.waypoints[0],
+            endpos: Pathfinder_obj.waypoints[Pathfinder_obj.waypoints.length-1]
+          }));
+
+          request.onreadystatechange = function () {
+            if (request.readyState === 4 && request.status === 200) {
+              console.log(request.responseText);
+              var json = JSON.parse(request.responseText);
+              console.log('data', json);
+
+              Pathfinder_obj.delete_all_waypoints();
+              for (let i = 0; i < json.path.length; i++) {
+                let p = json.path[i];
+                Pathfinder_obj.add_waypoint({latLng: new google.maps.LatLng(p.x, p.y)});
+              }
+
+              // TODO
+              Pathfinder_obj.print_waypoints();
+              // calculateAndDisplayRoute(directionsService, directionsDisplay);
+              Pathfinder_obj.print_path(directionsService, directionsDisplay);
+            }
+          };
         });
 
         document.getElementById('restart').addEventListener('click', function() {

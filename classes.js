@@ -30,9 +30,11 @@ class Pathfinder{
       destination: this.waypoints[this.waypoints.length-1],
       waypoints: waypts,
       optimizeWaypoints: true,
-      travelMode: 'BICYCLING'
+      travelMode: 'BICYCLING',
+      provideRouteAlternatives: true
     }, function(response, status) {
       if (status === 'OK') {
+        console.log(response);
         directionsDisplay.setDirections(response);
       } else {
         window.alert('Directions request failed due to ' + status);

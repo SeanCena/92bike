@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 from collections import deque
 
+obstacles = [(1., 1.), (2., 2.)]
+n_iter = 200
+radius = 0.5
+stepSize = 0.7
 
 class Line():
     def __init__(self, p0, p1):
@@ -167,7 +171,7 @@ def RRT(startpos, endpos):
             endidx = G.add_vex(G.endpos)
             G.add_edge(newidx, endidx, dist)
             G.success = True
-            print('success')
+            #print('success')
             # break
     return G
 
@@ -219,7 +223,7 @@ def RRT_star(startpos, endpos):
                 G.distances[endidx] = G.distances[newidx]+dist
 
             G.success = True
-            print('success')
+            #print('success')
             # break
     return G
 
