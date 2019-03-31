@@ -90,7 +90,7 @@ def nearest(G, vex):
 def newVertex(randvex, nearvex):
     dirn = np.array(randvex) - np.array(nearvex)
     dirn = (dirn / np.linalg.norm(dirn)) * stepSize
-    return randvex[0]+dirn[0], randvex[1]+dirn[1]
+    return nearvex[0]+dirn[0], nearvex[1]+dirn[1]
 
 
 class Graph:
@@ -239,6 +239,7 @@ if __name__ == '__main__':
     stepSize = 0.5
 
     G = RRT(startpos, endpos)
+    plot(G)
 
     if G.success:
         path = dijkstra(G)
