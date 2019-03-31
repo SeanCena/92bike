@@ -101,13 +101,35 @@ class Graph:
     def __init__(self, startpos, endpos):
         self.startpos = startpos
         self.endpos = endpos
+
         self.vertices = [startpos]
         self.edges = []
-        self.neighbors = {}
         self.success = False
+
+        self.vex2idx = {startpos:0}
+        self.neighbors = {0:[]}
+        self.distances = {0:0.}
 
         self.sx = endpos[0] - startpos[0]
         self.sy = endpos[1] - startpos[1]
+
+    def add_vex(self, pos, dist=0.):
+        try:
+            idx = self.vex2idx[pos]
+            self.distances[idx] = dist
+        except:
+            idx = len(self.vertices)
+            self.vertices.append(pos)
+            self.vex2idx[pos] = idx
+            self.neighbors[idx] = []
+            self.distances[idx] = dist
+        return idx
+
+    def add_edge(self, idx1, idx2, cost):
+        self.edges.append((idx1, idx2))
+        self.neighbors[idx1].append((idx2, cost))
+        self.neighbors[idx2].append((idx1, cost))
+
 
     def randomPosition(self):
         rx = random()
@@ -138,12 +160,14 @@ def RRT(startpos, endpos):
 
         newvex = newVertex(randvex, nearvex)
 
-        G.edges.append((nearidx, len(G.vertices)))
-        G.vertices.append(newvex)
+        newidx = G.add_vex(newvex)
+        dist = distance(newvex, nearvex)
+        G.add_edge(newidx, nearidx, dist)
 
-        if distance(newvex, G.endpos) < radius:
-            G.edges.append((len(G.vertices)-1, len(G.vertices)))
-            G.vertices.append(G.endpos)
+        dist = distance(newvex, G.endpos)
+        if dist < 2 * radius:
+            endidx = G.add_vex(G.endpos)
+            G.add_edge(newidx, endidx, dist)
             G.success = True
             print('success')
             # break
@@ -159,21 +183,21 @@ def RRT(startpos, endpos):
 # G = RRT(startpos, endpos)
 
 def dijkstra(G):
-    srcIdx = G.vertices.index(G.startpos)
-    dstIdx = G.vertices.index(G.endpos)
+    srcIdx = G.vex2idx[G.startpos]
+    dstIdx = G.vex2idx[G.endpos]
 
     # Preprocess neighbor & distance
-    G.neighbors.clear()
-
-    for e1, e2 in G.edges:
-        dist = distance(G.vertices[e1], G.vertices[e2])
-        v = G.neighbors.get(e1, [])
-        v.append((e2, dist))
-        G.neighbors[e1] = v
-
-        v = G.neighbors.get(e2, [])
-        v.append((e1, dist))
-        G.neighbors[e2] = v
+    # G.neighbors.clear()
+    #
+    # for e1, e2 in G.edges:
+    #     dist = distance(G.vertices[e1], G.vertices[e2])
+    #     v = G.neighbors.get(e1, [])
+    #     v.append((e2, dist))
+    #     G.neighbors[e1] = v
+    #
+    #     v = G.neighbors.get(e2, [])
+    #     v.append((e1, dist))
+    #     G.neighbors[e2] = v
 
     # build dijkstra
     nodes = list(G.neighbors.keys())
