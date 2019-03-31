@@ -1,7 +1,8 @@
 import matplotlib
 import matplotlib.pyplot as plt
-from sklean import KMeans
+from sklearn.cluster import KMeans
 from random import random
+import numpy as np
 
 def plot(pts):
     px = [x for x, y in pts]
@@ -17,19 +18,24 @@ def plot(pts):
 def plotCluster(kmeans, points):
     x = points[:,0]
     y = points[:,1]
+    ctrx = kmeans.cluster_centers_[:, 0]
+    ctry = kmeans.cluster_centers_[:, 1]
     label = kmeans.labels_
 
     colors = []
     for _ in range(kmeans.n_clusters):
         colors.append((random(), random(), random()))
 
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(12,12))
+    
+    plt.scatter(ctrx, ctry, c='black', marker='x', s=30)
     plt.scatter(x, y, c=label, cmap=matplotlib.colors.ListedColormap(colors),s=5)
 
     cb = plt.colorbar()
     loc = np.arange(0,max(label),max(label)/float(len(colors)))
     cb.set_ticks(loc)
     cb.set_ticklabels(list(range(kmeans.n_clusters)))
+    plt.show()
 
 
 
