@@ -1,4 +1,7 @@
+import matplotlib
 import matplotlib.pyplot as plt
+from sklean import KMeans
+from random import random
 
 def plot(pts):
     px = [x for x, y in pts]
@@ -11,10 +14,28 @@ def plot(pts):
     plt.show()
 
 
-# Test
-from random import random
-pts = []
-for _ in range(10):
-    pts.append((random()*5, random()*5))
+def plotCluster(kmeans, points):
+    x = points[:,0]
+    y = points[:,1]
+    label = kmeans.labels_
 
-plot(pts)
+    colors = []
+    for _ in range(kmeans.n_clusters):
+        colors.append((random(), random(), random()))
+
+    fig = plt.figure(figsize=(8,8))
+    plt.scatter(x, y, c=label, cmap=matplotlib.colors.ListedColormap(colors),s=5)
+
+    cb = plt.colorbar()
+    loc = np.arange(0,max(label),max(label)/float(len(colors)))
+    cb.set_ticks(loc)
+    cb.set_ticklabels(list(range(kmeans.n_clusters)))
+
+
+
+# Test
+# pts = []
+# for _ in range(10):
+#     pts.append((random()*5, random()*5))
+#
+# plot(pts)
