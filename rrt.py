@@ -89,8 +89,11 @@ def nearest(G, vex):
 
 def newVertex(randvex, nearvex):
     dirn = np.array(randvex) - np.array(nearvex)
-    dirn = (dirn / np.linalg.norm(dirn)) * stepSize
-    return nearvex[0]+dirn[0], nearvex[1]+dirn[1]
+    length = np.linalg.norm(dirn)
+    dirn = (dirn / length) * min (stepSize, length)
+
+    newvex = (nearvex[0]+dirn[0], nearvex[1]+dirn[1])
+    return newvex
 
 
 class Graph:
