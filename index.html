@@ -56,7 +56,7 @@
     <script src="getpoints.js"></script>
     <script src="classes.js"></script>
     <script>
-      var map, heatmap;
+      var map, heatmap, curHour = "00";
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 34.1577, lng: -118.3727},
@@ -106,6 +106,7 @@
           var request = new XMLHttpRequest();
           request.open('POST', 'http://localhost:5000/');
           request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
           request.send(JSON.stringify({
             startpos: Pathfinder_obj.waypoints[0],
             endpos: Pathfinder_obj.waypoints[Pathfinder_obj.waypoints.length-1]
@@ -141,9 +142,11 @@
         document.getElementById('hourSelected').innerHTML = hour;
 
         if (hour < 10) {
-          heatmap.setData(getPoints("0" + hour));
+          curHour = "0" + hour;
+          heatmap.setData(getPoints(curHour));
         } else {
-          heatmap.setData(getPoints(hour));
+          curHour = hour;
+          heatmap.setData(getPoints(curHour));
         }
       }
 

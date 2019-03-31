@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 from collections import deque
 
-obstacles = [(1., 1.), (2., 2.)]
-n_iter = 200
-radius = 0.5
-stepSize = 0.7
-
 class Line():
     def __init__(self, p0, p1):
         self.p = np.array(p0)
@@ -58,28 +53,28 @@ def distance(x, y):
     return np.linalg.norm(np.array(x) - np.array(y))
 
 
-def isInObstacle(vex):
+def isInObstacle(vex, obstacles, radius):
     for obs in obstacles:
         if distance(obs, vex) < radius:
             return True
     return False
 
 
-def isThruObstacle(line, obstacles):
+def isThruObstacle(line, obstacles, radius):
     for obs in obstacles:
         if Intersection(line, obs, radius):
             return True
     return False
 
 
-def nearest(G, vex):
+def nearest(G, vex, obstacles, radius):
     Nvex = None
     Nidx = None
     minDist = float("inf")
 
     for idx, v in enumerate(G.vertices):
         line = Line(v, vex)
-        if isThruObstacle(line, obstacles):
+        if isThruObstacle(line, obstacles, radius):
             continue
 
         dist = distance(v, vex)
@@ -91,7 +86,7 @@ def nearest(G, vex):
     return Nvex, Nidx
 
 
-def newVertex(randvex, nearvex):
+def newVertex(randvex, nearvex, stepSize):
     dirn = np.array(randvex) - np.array(nearvex)
     length = np.linalg.norm(dirn)
     dirn = (dirn / length) * min (stepSize, length)
@@ -148,19 +143,19 @@ class Graph:
 # G.randomPosition()
 
 
-def RRT(startpos, endpos):
+def RRT(startpos, endpos, obstacles, n_iter, radius, stepSize):
     G = Graph(startpos, endpos)
 
     for _ in range(n_iter):
         randvex = G.randomPosition()
-        if isInObstacle(randvex):
+        if isInObstacle(randvex, obstacles, radius):
             continue
 
-        nearvex, nearidx = nearest(G, randvex)
+        nearvex, nearidx = nearest(G, randvex, obstacles, radius)
         if nearvex is None:
             continue
 
-        newvex = newVertex(randvex, nearvex)
+        newvex = newVertex(randvex, nearvex, stepSize)
 
         newidx = G.add_vex(newvex)
         dist = distance(newvex, nearvex)
@@ -176,19 +171,19 @@ def RRT(startpos, endpos):
     return G
 
 
-def RRT_star(startpos, endpos):
+def RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize):
     G = Graph(startpos, endpos)
 
     for _ in range(n_iter):
         randvex = G.randomPosition()
-        if isInObstacle(randvex):
+        if isInObstacle(randvex, obstacles, radius):
             continue
 
-        nearvex, nearidx = nearest(G, randvex)
+        nearvex, nearidx = nearest(G, randvex, obstacles, radius)
         if nearvex is None:
             continue
 
-        newvex = newVertex(randvex, nearvex)
+        newvex = newVertex(randvex, nearvex, stepSize)
 
         newidx = G.add_vex(newvex)
         dist = distance(newvex, nearvex)
@@ -205,7 +200,7 @@ def RRT_star(startpos, endpos):
                 continue
 
             line = Line(vex, newvex)
-            if isThruObstacle(line, obstacles):
+            if isThruObstacle(line, obstacles, radius):
                 continue
 
             idx = G.vex2idx[vex]
@@ -270,7 +265,7 @@ def dijkstra(G):
 # if G.success:
 #     dijkstra(G)
 
-def plot(G, path=None):
+def plot(G, obstacles, radius, path=None):
     px = [x for x, y in G.vertices]
     py = [y for x, y in G.vertices]
     fig, ax = plt.subplots()
@@ -280,8 +275,8 @@ def plot(G, path=None):
         ax.add_artist(circle)
 
     ax.scatter(px, py, c='cyan')
-    ax.scatter(startpos[0], startpos[1], c='black')
-    ax.scatter(endpos[0], endpos[1], c='black')
+    ax.scatter(G.startpos[0], G.startpos[1], c='black')
+    ax.scatter(G.endpos[0], G.endpos[1], c='black')
 
     lines = [(G.vertices[edge[0]], G.vertices[edge[1]]) for edge in G.edges]
     lc = mc.LineCollection(lines, colors='green', linewidths=2)
@@ -297,6 +292,13 @@ def plot(G, path=None):
     plt.show()
 
 
+def pathSearch(startpos, endpos, obstacles, n_iter, radius, stepSize):
+    G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
+    if G.success:
+        path = dijkstra(G)
+        # plot(G, obstacles, radius, path)
+        return path
+
 
 if __name__ == '__main__':
     startpos = (0., 0.)
@@ -306,12 +308,12 @@ if __name__ == '__main__':
     radius = 0.5
     stepSize = 0.7
 
-    G = RRT_star(startpos, endpos)
-    # G = RRT(startpos, endpos)
+    G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
+    # G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
 
     if G.success:
         path = dijkstra(G)
         print(path)
-        plot(G, path)
+        plot(G, obstacles, radius, path)
     else:
-        plot(G)
+        plot(G, obstacles, radius)
