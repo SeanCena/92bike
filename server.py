@@ -13,11 +13,11 @@ def hello():
     positions = content["positions"]
     print startpos, endpos, positions
 
-    #obstacles = [(p[0], p[1]) for p in positions]
-    obstacles = []
-    n_iter = 200
+    obstacles = [(p[0], p[1]) for p in positions]
+    #obstacles = []
+    n_iter = 400
     radius = 0.01
-    stepSize = 0.01
+    stepSize = 0.005
 
     print obstacles
 
