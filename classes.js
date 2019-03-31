@@ -8,6 +8,11 @@ class Pathfinder{
   add_waypoint(event_with_LatLong){
       this.waypoints.push(event_with_LatLong.latLng);
   }
+
+ delete_all_waypoints(){
+    this.waypoints =[];
+    
+  }
   
   print_waypoints(){
     for (var i = 0; i < this.waypoints.length; i++) { 
