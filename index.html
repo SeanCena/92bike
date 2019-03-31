@@ -1,54 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Simple Map</title>
+    <title>Gogogobike</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #floating-panel {
-        position: absolute;
-        top: 10px;
-        left: 25%;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-        text-align: center;
-        font-family: 'Roboto','sans-serif';
-        line-height: 30px;
-        padding-left: 10px;
-      }
-      #floating-panel {
-        background-color: #fff;
-        border: 1px solid #999;
-        left: 25%;
-        padding: 5px;
-        position: absolute;
-        top: 10px;
-        z-index: 5;
-      }
-      input[type="range"] {
-        width:400px;
-      }
-    </style>
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link href="style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div id="floating-panel">
-        <label for="hour">Hour: </label>
-        <input type="range" name="hour" value="0"
-                            min="0" max="23" step="1" onchange="showHour(this.value)"/>
+        <h3 style="margin: 5px;">Plan your biking trip with Gogogobike!</h3>
+        <label for="hour">Departure time: </label>
+        <input type="range" class="slider" name="hour" value="1"
+                            min="1" max="24" step="1" onchange="showHour(this.value)"/>
         <span id="hourSelected"></span>
+        <br>
         <input type="submit" id="submit">
         <input type="submit" id="restart" value="Restart">
     </div>
@@ -180,14 +146,17 @@
       }
 
       function showHour(hour) {
-        document.getElementById('hourSelected').innerHTML = hour;
+        if(hour==24 || hour==12){
+          document.getElementById('hourSelected').innerHTML = "12:00";
+        }else{
+          document.getElementById('hourSelected').innerHTML = hour % 12 + ":00 ";
+        }
+        document.getElementById('hourSelected').innerHTML += (hour>=12&&hour<24)?"PM":"AM";
 
         if (hour < 10) {
-          curHour = "0" + hour;
-          heatmap.setData(getPoints(curHour));
+          heatmap.setData(getPoints("0" + hour - 1));
         } else {
-          curHour = hour;
-          heatmap.setData(getPoints(curHour));
+          heatmap.setData(getPoints(hour - 1));
         }
       }
 
