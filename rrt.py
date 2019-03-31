@@ -3,6 +3,7 @@ import numpy as np
 from random import random
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
+from collections import deque
 
 
 class Line():
@@ -94,6 +95,8 @@ class Graph:
         self.endpos = endpos
         self.vertices = [startpos]
         self.edges = []
+        self.neighbors = {}
+        self.success = False
 
         self.sx = endpos[0] - startpos[0]
         self.sy = endpos[1] - startpos[1]
@@ -130,40 +133,107 @@ def RRT(startpos, endpos):
         if distance(newvex, G.endpos) < radius:
             G.edges.append((len(G.vertices)-1, len(G.vertices)))
             G.vertices.append(G.endpos)
+            G.success = True
             print('success')
-            break
+            # break
     return G
 
 
-startpos = (0., 0.)
-endpos = (5., 5.)
-obstacles = [(1., 1.), (2., 2.)]
-n_iter = 100
-radius = 0.5
+# startpos = (0., 0.)
+# endpos = (5., 5.)
+# obstacles = [(1., 1.), (2., 2.)]
+# n_iter = 100
+# radius = 0.5
+#
+# G = RRT(startpos, endpos)
 
-G = RRT(startpos, endpos)
+def dijkstra(G):
+    srcIdx = G.vertices.index(G.startpos)
+    dstIdx = G.vertices.index(G.endpos)
 
+    # Preprocess neighbor & distance
+    G.neighbors.clear()
 
-def plot(G):
+    for e1, e2 in G.edges:
+        dist = distance(G.vertices[e1], G.vertices[e2])
+        v = G.neighbors.get(e1, [])
+        v.append((e2, dist))
+        G.neighbors[e1] = v
+
+        v = G.neighbors.get(e2, [])
+        v.append((e1, dist))
+        G.neighbors[e2] = v
+
+    # build dijkstra
+    nodes = list(G.neighbors.keys())
+    dist = {node: float('inf') for node in nodes}
+    prev = {node: None for node in nodes}
+    dist[srcIdx] = 0
+
+    while nodes:
+        curNode = min(nodes, key=lambda node: dist[node])
+        nodes.remove(curNode)
+        if dist[curNode] == float('inf'):
+            break
+
+        for neighbor, cost in G.neighbors[curNode]:
+            newCost = dist[curNode] + cost
+            if newCost < dist[neighbor]:
+                dist[neighbor] = newCost
+                prev[neighbor] = curNode
+
+    # retrieve path
+    path = deque()
+    curNode = dstIdx
+    while prev[curNode] is not None:
+        path.appendleft(G.vertices[curNode])
+        curNode = prev[curNode]
+    path.appendleft(G.vertices[curNode])
+    return list(path)
+
+# if G.success:
+#     dijkstra(G)
+
+def plot(G, path=None):
     px = [x for x, y in G.vertices]
     py = [y for x, y in G.vertices]
-
-#     plt.plot(px, py, 'ro')
-#     plt.plot(startpos[0], startpos[1], 'go')
-#     plt.plot(endpos[0], endpos[1], 'bo')
-
     fig, ax = plt.subplots()
 
-    ax.scatter(px, py, c='red')
+    for obs in obstacles:
+        circle = plt.Circle(obs, radius, color='red')
+        ax.add_artist(circle)
+
+    ax.scatter(px, py, c='cyan')
     ax.scatter(startpos[0], startpos[1], c='black')
     ax.scatter(endpos[0], endpos[1], c='black')
 
     lines = [(G.vertices[edge[0]], G.vertices[edge[1]]) for edge in G.edges]
-    lc = mc.LineCollection(lines, linewidths=2)
+    lc = mc.LineCollection(lines, colors='green', linewidths=2)
     ax.add_collection(lc)
+
+    if path is not None:
+        paths = [(path[i], path[i+1]) for i in range(len(path)-1)]
+        lc2 = mc.LineCollection(paths, colors='blue', linewidths=3)
+        ax.add_collection(lc2)
+
     ax.autoscale()
     ax.margins(0.1)
     plt.show()
 
 
-plot(G)
+
+if __name__ == '__main__':
+    startpos = (0., 0.)
+    endpos = (5., 5.)
+    obstacles = [(1., 1.), (2., 2.)]
+    n_iter = 200
+    radius = 0.5
+
+    G = RRT(startpos, endpos)
+
+    if G.success:
+        path = dijkstra(G)
+        print(path)
+        plot(G, path)
+    else:
+        plot(G)
