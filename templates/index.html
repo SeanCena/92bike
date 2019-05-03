@@ -5,7 +5,7 @@
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href="/static/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div id="floating-panel">
@@ -19,8 +19,8 @@
         <input type="submit" id="restart" value="Restart">
     </div>
     <div id="map"></div>
-    <script src="getpoints.js"></script>
-    <script src="classes.js"></script>
+    <script src="/static/getpoints.js"></script>
+    <script src="/static/classes.js"></script>
     <script>
       var map, heatmap, curHour = "00";
       function initMap() {
@@ -69,7 +69,6 @@
         });
 
         document.getElementById('submit').addEventListener('click', function() {
-          console.log(1231231312312);
           var request = new XMLHttpRequest();
           request.open('POST', 'http://localhost:5000/');
           request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
