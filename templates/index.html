@@ -70,7 +70,7 @@
 
         document.getElementById('submit').addEventListener('click', function() {
           var request = new XMLHttpRequest();
-          request.open('POST', 'http://localhost:5000/');
+          request.open('POST', '/');
           request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
           function getWindow(startpos, endpos) {
